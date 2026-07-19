@@ -1,0 +1,80 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Project {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  color       String?
+  tasks       Task[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Task {
+  id          String    @id @default(uuid())
+  title       String
+  description String?
+  completed   Boolean   @default(false)
+  dueDate     DateTime?
+  priority    String    @default("MEDIUM") // LOW, MEDIUM, HIGH, URGENT
+  projectId   String?
+  project     Project?  @relation(fields: [projectId], references: [id])
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model TimetableSlot {
+  id          String   @id @default(uuid())
+  dayOfWeek   Int      // 1 = Monday, 2 = Tuesday, ... 7 = Sunday
+  startTime   String   // "HH:MM" e.g., "09:00"
+  endTime     String   // "HH:MM" e.g., "10:30"
+  subject     String
+  room        String?
+  color       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model CalendarEvent {
+  id            String   @id @default(uuid())
+  title         String
+  description   String?
+  startTime     DateTime
+  endTime       DateTime
+  color         String?
+  googleEventId String?  // Sync metadata references
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Goal {
+  id          String    @id @default(uuid())
+  title       String
+  description String?
+  targetDate  DateTime?
+  status      String    @default("IN_PROGRESS") // IN_PROGRESS, COMPLETED, ABANDONED
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Metric {
+  id         String   @id @default(uuid())
+  key        String   // "STUDY_TIME", "TASKS_DONE", etc.
+  value      Float
+  recordedAt DateTime @default(now())
+}
+
+model Setting {
+  id        String   @id @default(uuid())
+  key       String   @unique
+  value     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
